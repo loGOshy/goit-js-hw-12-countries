@@ -1,45 +1,64 @@
 import './styles.css';
-import countryCardMurkup from './templates/countryMarkup.hbs';
+import countryCardTp from './templates/countryMarkup.hbs';
 import countriesListMarkup from './templates/countriesList.hbs';
 import debounce from 'lodash.debounce';
+import API from './fetchCountries';
+import getRefs from './get-refs';
 
 
-const ref = {
-    countriesList: document.querySelector('.countries-list'),
-    input: document.querySelector('.input'),
-    card: document.querySelector('.country-card')
-};
+const ref = getRefs();
 
-ref.input.addEventListener('input', debounce(fine, 500) )
+ref.input.addEventListener('input', debounce(toFineCountry, 500) )
 
-let countriesArr = null;
 
-function fine(evt) {
-    fetch(`https://restcountries.eu/rest/v2/name/${evt.target.value}`)
-.then(Response => {    
-    return Response.json();
-    })
-.then(country => {
+function toFineCountry (evt){
+    
+    API.fetchCuuntries(evt.target.value.trim())
+    .then(country => {
     renderList.bind(country)();
     })
-.catch(error => {console.log(error);})}
-
+    .catch(error => { console.log(error);
+        resetRenderCard();
+        resetRenderList();
+   })
+}
 
 function renderList () {  
-    countriesArr = this;
-     
-    ref.countriesList.innerHTML =  countriesListMarkup(this);
+    const countriesArr = this;
+    if (countriesArr.length <= 10) {
+        resetRenderCard(); 
+       ref.countriesList.innerHTML = countriesListMarkup(this);
     const countriesItemRef = ref.countriesList.querySelectorAll('.countries__item');
-    ref.countriesList.addEventListener('click', loger)
+    ref.countriesList.addEventListener('click', renderCardByClick.bind(this));
+        if (countriesArr.length === 1) {
+            renderCard (this)
+        } 
+    } 
+    else {
+        resetRenderCard();
+        resetRenderList();
+        renderNotify ();
+        console.log('ВВедите более точное названи')}
+
+    
+}
+function resetRenderCard () {
+    ref.card.innerHTML = ''
+}
+function resetRenderList () {
+    ref.countriesList.innerHTML =  ''
+}
+function renderNotify () {
+    ref.countriesList.innerHTML =  'Cделайте свой запрос более специфичным! <br/> Под ваш критерий поиска попадает слишком много стран.'
 }
 
 function renderCard (country) {
-    ref.card.innerHTML = countryCardMurkup(country);    
+    ref.card.innerHTML = countryCardTp(country);    
 }
 
-function loger(evt) {
+function renderCardByClick(evt) {
     const targetCountry = evt.target.outerText;
-    const countryForCard = [(countriesArr.find(country => {return country.name === targetCountry}))];
+    const countryForCard = [this.find(country => {return country.name === targetCountry})];
     renderCard(countryForCard);  
 }
 
