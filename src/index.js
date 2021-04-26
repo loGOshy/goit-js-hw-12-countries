@@ -20,6 +20,7 @@ function toFineCountry (evt){
     .catch(error => { console.log(error);
         resetRenderCard();
         resetRenderList();
+        renderError ();
    })
 }
 
@@ -50,6 +51,9 @@ function resetRenderList () {
 }
 function renderNotify () {
     ref.countriesList.innerHTML =  'Cделайте свой запрос более специфичным! <br/> Под ваш критерий поиска попадает слишком много стран.'
+}
+function renderError () {
+    ref.countriesList.innerHTML =  '!!! По вашему запросу ничего не найдено!!!'
 }
 
 function renderCard (country) {
